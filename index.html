@@ -16,11 +16,12 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      overflow: hidden;
     }
 
     .page {
-      padding: 4rem 2rem;
+      box-sizing: border-box;
+      width: calc(100% - 2rem);
+      padding: clamp(1rem, 4vw, 3rem);
       border: 6px dashed #ffffff;
       background: rgba(0, 0, 0, 0.35);
       box-shadow: 0 0 30px rgba(255, 255, 255, 0.25);
@@ -51,12 +52,129 @@
       background: rgba(255, 255, 255, 0.1);
       box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
     }
+
+    .countdown {
+      margin: clamp(2rem, 5vw, 3.5rem) auto 0;
+      padding: 14px;
+      border: 3px solid #21102c;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle, #fffbd5 0 2px, #ffde59 3px, transparent 5px) 0 0 / 18px 18px,
+        #de006b;
+      box-shadow: 0 0 0 3px #ffda21, 8px 10px 0 #221331;
+      color: #fffbd5;
+      font-family: 'Arial Black', Impact, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .board {
+      padding: clamp(1rem, 3.5vw, 2.5rem);
+      border: 3px solid #24132f;
+      border-radius: 5px;
+      background: repeating-linear-gradient(135deg, #311242 0 9px, #361449 9px 18px);
+    }
+
+    .countdown h2 {
+      margin: 0 0 0.25em;
+      color: #ffeb32;
+      font: italic 900 clamp(2.2rem, 6.8vw, 5.5rem)/1 Impact, 'Arial Black', sans-serif;
+      letter-spacing: 0.015em;
+      text-shadow: 3px 3px #cb0060, 5px 5px #160b26;
+    }
+
+    .target {
+      display: block;
+      margin: 0.7rem 0 1.3rem;
+      font: 800 clamp(0.8rem, 2vw, 1.1rem)/1.55 system-ui, sans-serif;
+      letter-spacing: 0.07em;
+    }
+
+    .digits {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(0.6rem, 1.8vw, 1.25rem);
+    }
+
+    .unit {
+      --ink: #ffec37;
+      padding: 0.65rem 0.1rem;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      background: #190d28;
+      color: var(--ink);
+      box-shadow: 3px 4px 0 #de006b;
+    }
+
+    .unit:nth-child(2) { --ink: #60ffed; }
+    .unit:nth-child(3) { --ink: #ff8ad2; }
+    .unit:nth-child(4) { --ink: #c4ff53; }
+
+    .unit b {
+      display: block;
+      font: 900 clamp(2.6rem, 7.8vw, 6.5rem)/1.1 'Arial Black', system-ui, sans-serif;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.07em;
+      padding-right: 0.07em;
+      text-shadow: 0 0 12px color-mix(in srgb, var(--ink) 40%, transparent);
+    }
+
+    .unit span {
+      font: 800 clamp(0.68rem, 1.45vw, 0.9rem)/1.6 system-ui, sans-serif;
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 37rem) {
+      .digits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .unit b { font-size: clamp(2.6rem, 12vw, 4.5rem); }
+      h1 { font-size: clamp(2rem, 9vw, 3rem); }
+    }
   </style>
 </head>
 <body>
-  <div class="page">
+  <main class="page">
     <h1>What up ya'll!<br>I'm Lindsey, aka Beefy.</h1>
     <p class="glow">I'm super well adjusted!</p>
-  </div>
+
+    <section class="countdown" aria-labelledby="countdown-title">
+      <div class="board">
+        <h2 id="countdown-title">Beefy's Countdown</h2>
+        <time class="target" datetime="2027-01-14T18:00:00-05:00">Thursday, January 14, 2027 &bull; 6 PM Eastern</time>
+        <div class="digits" role="timer" aria-label="Time remaining">
+          <div class="unit"><b>--</b> <span>Days</span></div>
+          <div class="unit"><b>--</b> <span>Hours</span></div>
+          <div class="unit"><b>--</b> <span>Minutes</span></div>
+          <div class="unit"><b>--</b> <span>Seconds</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const deadline = Date.parse(document.querySelector('.target').dateTime);
+    const fields = document.querySelectorAll('.unit b');
+    const heading = document.getElementById('countdown-title');
+
+    function updateCountdown() {
+      const remaining = Math.max(0, deadline - Date.now());
+      const seconds = Math.ceil(remaining / 1000);
+      const values = [
+        Math.floor(seconds / 86400),
+        Math.floor(seconds / 3600) % 24,
+        Math.floor(seconds / 60) % 60,
+        seconds % 60
+      ];
+
+      fields.forEach((field, index) => {
+        field.textContent = String(values[index]).padStart(2, '0');
+      });
+
+      if (remaining > 0) {
+        window.setTimeout(updateCountdown, remaining % 1000 || 1000);
+      } else {
+        heading.textContent = "It's time!";
+      }
+    }
+
+    updateCountdown();
+  </script>
 </body>
 </html>
